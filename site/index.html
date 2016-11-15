@@ -89,6 +89,13 @@
                             },
                             require_field_match: false
                         },
+                        aggregations: {
+                            year: {
+                                terms: {
+                                    field: "info.year",
+                                }
+                            }
+                        }
                     }
                 }
 
