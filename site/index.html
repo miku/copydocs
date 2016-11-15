@@ -69,7 +69,12 @@
                             query_string: {
                                 query: queryString
                             }
-                        }
+                        },
+                        highlight: {
+                            fields: {
+                                '*': {}
+                            }
+                        }                        
                     }
                 }
 
@@ -79,22 +84,26 @@
 
                     // assemble documents
                     for (var i = 0; i < body.hits.hits.length; i++) {
+                        var hit = body.hits.hits[i];
                         var entry = {
-                            'title' : body.hits.hits[i]._source.info.title,
-                            'url' : body.hits.hits[i]._source.page.url,
-                            'abstract': truncate(body.hits.hits[i]._source.page.abstract, 300),
-                            'year': body.hits.hits[i]._source.info.year,
+                            'title' : hit._source.info.title,
+                            'url' : hit._source.page.url,
+                            'abstract': truncate(hit._source.page.abstract, 300),
+                            'year': hit._source.info.year,
                         }
                         results.push(entry);
                     }
                         
-
+                    // mustachio
                     var template = $('#template').html();
                     var rendered = Mustache.render(template, {
                         results: results
                     });
 
+                    // replace #r completely
                     $('#r').html(rendered);
+
+                    // update count
                     $('#count').html(body.hits.total);
 
                 }, function (error) {
