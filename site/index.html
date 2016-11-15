@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hi</title>
+    <script
+              src="https://code.jquery.com/jquery-3.1.1.min.js"
+              integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+              crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // console.log( "ready!" );
+
+            $("#q").focus();
+            $("#q").keyup(function(e) {
+
+                // if (e.KeyCode == 13) {
+                //     console.log("ENTER");
+                // }
+
+                var queryString = $("#q").val();
+                // console.log(queryString);
+
+                var encoded = encodeURIComponent(queryString);
+                var baseQ = "http://localhost:9200/sample/_search?q=";
+
+                $.ajax({
+                  type: "POST",
+                  url: baseQ.concat(encoded),
+                  data: {},
+                  success: function(data) {
+                    $("#r").empty();
+                    for (var i = 0; i < data.hits.hits.length; i++) {
+                        var hit = data.hits.hits[i];
+                        // console.log(hit._source.info.title);
+                        $("#r").append("<li>" + hit._source.info.title + "</li>");
+                    }
+                  },
+                  dataType: "json"
+                });
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <p>Copydocs</p>
+
+    <!-- input -->
+    <input id="q" type="text" name="search">
+    
+    <!-- results -->
+    <ul id="r"></ul>
+</body>
+</html>
