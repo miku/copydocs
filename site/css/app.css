@@ -11,3 +11,8 @@ ul, li {
 em {
     background: yellow;
 }
+
+.item {
+    background: #efefef;
+    padding: 10px;
+}

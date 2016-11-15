@@ -123,6 +123,10 @@
                             'year': hit._source.info.year,
                         }
 
+                        if (hit._source.page.linked_pdfs.length > 0) {
+                            entry['pdf'] = hit._source.page.linked_pdfs[0];
+                        }
+
                         results.push(entry);
                     }
                         
@@ -168,11 +172,12 @@
 
                 <script id="template" type="x-tmpl-mustache">
                     {{#results}}
-                        <li>
+                        <li class="item">
                             <b>{{{ title }}}</b> &mdash; {{ year }}<br>
                             <a href="{{ url }}">{{ url }}</a><br>
                             {{{ abstract }}}
-
+                            <br>
+                            <a href="{{ pdf }}">{{ pdf }}</a>
                         </li>
                     {{/results}}
                 </script>
