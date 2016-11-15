@@ -216,5 +216,11 @@ if __name__ == '__main__':
                 content = fh.read()
             soup = BeautifulSoup(content, 'html.parser')
 
-            dd = htmltodict(soup)
-            print(json.dumps(dd))
+            doc = htmltodict(soup)
+
+            # the URL to the actual wike page
+            url = 'http://%s' % (line.replace('mirror/', '').replace('.html', ''))
+            doc['page']['url'] = url
+
+            # write to stdout
+            print(json.dumps(doc))
