@@ -37,7 +37,7 @@
         <br>
         <p style="color: gray;">{{ result.info.year[0] }} &mdash; {{ result.info.citation[0] }}</p>
         <br>
-        <p>{{ result.page.abstract }}</p>
+        <p>{{ result.page.abstract | limitTo: 400 }}{{result.page.abstract.length > 400 ? '...' : ''}}</p>
         <br>
         <p><a href="{{ result.page.linked_pdfs[0] }}">{{ result.page.linked_pdfs[0] }}</p>
       </div>
