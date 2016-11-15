@@ -116,11 +116,19 @@
                             title = hit.highlight["info.title"];
                         }
 
+                        // fulltext
+                        var fulltext = truncate(hit._source.page.text, 300);
+                        // if we have a highlight, use that
+                        if (hit.highlight.hasOwnProperty("page.text")) {
+                            fulltext = hit.highlight["page.text"];
+                        }
+
                         var entry = {
                             title: title,
                             'url' : hit._source.page.url,
                             abstract: abstract,
                             'year': hit._source.info.year,
+                            'fulltext': fulltext,
                         }
 
                         if (hit._source.page.linked_pdfs.length > 0) {
@@ -178,6 +186,9 @@
                             {{{ abstract }}}
                             <br>
                             <a href="{{ pdf }}">{{ pdf }}</a>
+                            <hr>
+
+                            {{{ fulltext }}}
                         </li>
                     {{/results}}
                 </script>

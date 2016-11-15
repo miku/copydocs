@@ -199,6 +199,16 @@
               }
             }
           },
+          "text": {
+            "type": "text",
+            "store": true,
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
           "implications": {
             "type": "text",
             "fields": {

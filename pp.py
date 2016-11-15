@@ -20,9 +20,10 @@ Additional infoboxes:
 """
 
 from bs4 import BeautifulSoup
+import hashlib
 import json
-import sys
 import os
+import sys
 
 KEYMAP = {
     'Discipline': 'discipline',
@@ -201,6 +202,19 @@ def htmltodict(soup):
             'linked_pdfs': linked_pdfs(soup),
         }
     }
+
+    content['page']['text'] = ''
+
+    # add fulltext from PDF here, if available
+    # filename is 'downloads/<sha1-of-link>.txt'
+    if len(content['page']['linked_pdfs']) > 0:
+
+        digest = hashlib.sha1(content['page']['linked_pdfs'][0]).hexdigest()
+        txtfile = 'downloads/%s.txt' % digest
+
+        if os.path.exists(txtfile):
+            with open(txtfile) as handle:
+                content['page']['text'] = handle.read()
 
     document.update(content)
 
