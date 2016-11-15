@@ -35,7 +35,15 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, el
                         "query_string": {
                             "query": query,
                         }
-                    }
+                    },
+                    "highlight": {
+                        "fields": {
+                            "*": {
+                                "fragment_size" : 150,
+                                "number_of_fragments" : 3
+                            }
+                        }
+                    }            
                 }
         }).then(function(result) {
 
