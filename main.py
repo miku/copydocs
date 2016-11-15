@@ -12,6 +12,7 @@ import hashlib
 import json
 import luigi
 import os
+import sys
 
 class Task(gluish.BaseTask):
     BASE = './derived'
