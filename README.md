@@ -38,7 +38,10 @@ Basic data from wiki. Links to external PDFs.
 TODO
 ----
 
-Formalize related pages in wiki.
+* download linked PDFs
+* extract images from linked PDFs
+* harvest some twitter data
+* formalize related pages in wiki
 
 API
 ---
