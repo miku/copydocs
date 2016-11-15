@@ -17,7 +17,12 @@ More data sources:
 Pages, with studies:
 
 ```
-$ find . -name "*html" | grep -v "action" | grep -v "Special:" | grep -v "User:" | grep -E '\([0-9]*\)' | grep -v "title="
+$ find . -name "*html" |
+  grep -v "action" |
+  grep -v "Special:" |
+  grep -v "User:" |
+  grep -E '\([0-9]*\)' |
+  grep -v "title="
 ```
 
 Access API.
