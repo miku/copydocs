@@ -22,6 +22,33 @@ Additional infoboxes:
 from bs4 import BeautifulSoup
 import json
 import sys
+import os
+
+KEYMAP = {
+    'Discipline': 'discipline',
+    'Citation': 'citation',
+    'Author(s)': 'authors',
+    'Year': 'year',
+    'Key Related Studies': 'related',
+    'title': 'section_title',
+    'Title': 'title',
+    'Linked by': 'linked_by',
+    'Link(s)': 'links',
+    'Industry(ies)': 'industries',
+    'Country(ies)': 'countries',
+    'Data Analysis Methods': 'data_analysis_methods',
+    'Cross Country Study?': 'is_cross_country',
+    'Comparative Study?': 'is_comparative_study',
+    'Secondary Data Sources': 'secondary_data_sources',
+    'Government or policy study?': 'is_government_or_policy_study',
+    'Time Period(s) of Collection': 'time_periods_of_collection',
+    'Literature review?': 'is_literature_review',
+    'Data Collection Methods': 'data_collection_methods',
+    'Funder(s)': 'funders',
+    'Data Description': 'data_description',
+    'Data Type': 'data_type',
+}
+
 
 def abstract(soup):
     """
@@ -44,28 +71,37 @@ def abstract(soup):
     # </p>
 
     """
-    ps = soup.find('span', {'class': 'mw-headline', 'id': 'Abstract'}).parent.find_next_siblings('p')
-    if not ps:
+    try:
+        ps = soup.find('span', {'class': 'mw-headline', 'id': 'Abstract'}).parent.find_next_siblings('p')
+        if not ps:
+            return ''
+        return ' '.join([s.get_text() for s in ps]).strip()
+    except AttributeError:
         return ''
-    return ' '.join([s.get_text() for s in ps]).strip()
 
 def main_results_of_study(soup):
     """
     Main results of study.
     """
-    ps = soup.find('span', {'class': 'mw-headline', 'id': 'Main_Results_of_the_Study'}).parent.find_next_siblings('p')
-    if not ps:
+    try:
+        ps = soup.find('span', {'class': 'mw-headline', 'id': 'Main_Results_of_the_Study'}).parent.find_next_siblings('p')
+        if not ps:
+            return ''
+        return ' '.join([s.get_text() for s in ps]).strip()
+    except AttributeError:
         return ''
-    return ' '.join([s.get_text() for s in ps]).strip()
 
 def policy_implications_as_stated_by_author(soup):
     """
     Policy Implications as Stated By Author.
     """
-    ps = soup.find('span', {'class': 'mw-headline', 'id': 'Policy_Implications_as_Stated_By_Author'}).parent.find_next_siblings('p')
-    if not ps:
+    try:
+        ps = soup.find('span', {'class': 'mw-headline', 'id': 'Policy_Implications_as_Stated_By_Author'}).parent.find_next_siblings('p')
+        if not ps:
+            return ''
+        return ' '.join([s.get_text() for s in ps]).strip()
+    except AttributeError:
         return ''
-    return ' '.join([s.get_text() for s in ps]).strip()
 
 def infobox(soup):
     """
@@ -73,6 +109,21 @@ def infobox(soup):
     """
     tables = soup.find_all('table', {'class': 'infobox'})
     return tables
+
+def linked_pdfs(soup):
+    """
+    Only return external PDF for now.
+    """
+    links = set()
+    for link in soup.find_all('a'):
+        if link.attrs.get('href', '').startswith('http://www.copyrightevidence.org'):
+            continue
+        if not link.attrs.get('href', '').startswith('http'):
+            continue
+        if not link.attrs.get('href', '').endswith('pdf'):
+            continue
+        links.add(link.attrs.get('href'))
+    return list(links)
 
 def boxtodict(box):
     """
@@ -113,19 +164,23 @@ def breakup(s):
         return {}
     if len(parts) == 1:
         return {'*': parts}
-    return {
-        parts[0].strip(): [v.strip() for v in parts[1].strip().split('\n')]
-    }
 
+    sanitized_key = KEYMAP.get(parts[0].strip())
+    values = [v.strip() for v in parts[1].strip().split('\n')]
 
-if __name__ == '__main__':
-    path = 'mirror/www.copyrightevidence.org/evidence-wiki/index.php/Acilar_(2010).html'
+    if sanitized_key.startswith('is_') and len(values) == 1:
+        if values[0].lower() == "no":
+            values = False
+        else:
+            values = True
 
-    with open(path) as handle:
-        html = handle.read()
+    return {sanitized_key: values}
 
-    soup = BeautifulSoup(html, 'html.parser')
+def htmltodict(soup):
+    """
+    Parse a wiki HTML page into JSON given a HTML soup.
 
+    """
     # assemble the document
     document = {}
 
@@ -138,12 +193,26 @@ if __name__ == '__main__':
             # top box
             document.update({'info': dd})
 
-    content = {
+    content = {'page': {
         'abstract': abstract(soup),
         'results': main_results_of_study(soup),
         'implications': policy_implications_as_stated_by_author(soup),
-    }
+        'linked_pdfs': linked_pdfs(soup),
+    }}
 
     document.update(content)
 
-    print(json.dumps(document))
+    return document
+
+if __name__ == '__main__':
+    # path = 'mirror/www.copyrightevidence.org/evidence-wiki/index.php/Acilar_(2010).html'
+    # path = 'mirror/www.copyrightevidence.org/evidence-wiki/index.php/Angelopoulos_(2012).html'
+
+    with open('derived/default/FindPages/output.tsv') as handle:
+        for line in map(str.strip, handle):
+            with open(line) as fh:
+                content = fh.read()
+            soup = BeautifulSoup(content, 'html.parser')
+
+            dd = htmltodict(soup)
+            print(json.dumps(dd))
