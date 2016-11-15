@@ -43,6 +43,11 @@ Basic data from wiki. Links to external PDFs.
 TODO
 ----
 
+* front: faceted search
+* front: let users explore keywords, color coding themes, etc.
+
+----
+
 * download linked PDFs
 * extract images from linked PDFs
 * harvest some twitter data
