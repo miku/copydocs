@@ -26,6 +26,23 @@ import sys
 def abstract(soup):
     """
     Return abstract.
+
+    # PP
+    # print(soup.prettify().encode('utf-8'))
+    # sys.exit(0)
+
+    # <h3>
+    #  <span class="mw-headline" id="Abstract">
+    #   Abstract
+    #  </span>
+    # </h3>
+    # <p>
+    #  The widespread use of computers and ....
+    # </p>
+    # <p>
+    #  The main purpose of the present ...
+    # </p>
+
     """
     ps = soup.find('span', {'class': 'mw-headline', 'id': 'Abstract'}).parent.find_next_siblings('p')
     if not ps:
@@ -51,13 +68,30 @@ def policy_implications_as_stated_by_author(soup):
     return ' '.join([s.get_text() for s in ps]).strip()
 
 def infobox(soup):
-    """ <table cellpadding="3" class="infobox" style="width:28em;"> """
+    """
+    <table cellpadding="3" class="infobox" style="width:28em;">
+    """
     tables = soup.find_all('table', {'class': 'infobox'})
     return tables
 
+def boxtodict(box):
+    """
+    Turn a box into JSON.
+    """
+    doc = {}
+    for i, row in enumerate(box.find_all('tr')):
+        if i == 0:
+            doc['title'] = row.get_text().strip()
+            continue
+
+        rowdoc = breakup(row.get_text())
+        doc.update(rowdoc)
+
+    return doc        
+
 def breakup(s):
     """
-    Breakup a string like:
+    Breakup a string from infobox like:
 
         Key Related Studies:
 
@@ -71,14 +105,16 @@ def breakup(s):
 
         {'Key Related Studies': ['Moores and Chang (2006)', ...]}
 
+    Always returns a dictionary.
+
     """
     parts = s.split(':', 1)
     if len(parts) == 0:
-        return ''
+        return {}
     if len(parts) == 1:
-        return parts
+        return {'*': parts}
     return {
-        parts[0]: [v.strip() for v in parts[1].strip().split('\n')]
+        parts[0].strip(): [v.strip() for v in parts[1].strip().split('\n')]
     }
 
 
@@ -90,32 +126,24 @@ if __name__ == '__main__':
 
     soup = BeautifulSoup(html, 'html.parser')
 
-    # PP
-    # print(soup.prettify().encode('utf-8'))
-    # sys.exit(0)
+    # assemble the document
+    document = {}
 
-    # <h3>
-    #  <span class="mw-headline" id="Abstract">
-    #   Abstract
-    #  </span>
-    # </h3>
-    # <p>
-    #  The widespread use of computers and ....
-    # </p>
-    # <p>
-    #  The main purpose of the present ...
-    # </p>
+    for box in infobox(soup):
+        dd = boxtodict(box)
+        if dd.get('title') == 'About the Data':
+            # about box (bottom)
+            document.update({'about': dd})
+        else:
+            # top box
+            document.update({'info': dd})
 
-    for x in infobox(soup):
-        for row in x.find_all('tr'):
-            print(breakup(row.get_text()))
-            print('----')
-        # print(x.prettify())
-        # print('----')
+    content = {
+        'abstract': abstract(soup),
+        'results': main_results_of_study(soup),
+        'implications': policy_implications_as_stated_by_author(soup),
+    }
 
-    # Lovely.
-    # print(json.dumps({
-    #     'abstract': abstract(soup),
-    #     'results': main_results_of_study(soup),
-    #     'implications': policy_implications_as_stated_by_author(soup),
-    # }))
+    document.update(content)
+
+    print(json.dumps(document))
