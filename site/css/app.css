@@ -7,3 +7,7 @@ body {
 ul, li {
     list-style: none;
 }
+
+em {
+    background: yellow;
+}

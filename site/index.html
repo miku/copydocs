@@ -70,11 +70,17 @@
                                 query: queryString
                             }
                         },
+                        // query: {
+                        //     match: {
+                        //         "info.title": queryString
+                        //     }
+                        // },
                         highlight: {
                             fields: {
                                 '*': {}
-                            }
-                        }                        
+                            },
+                            require_field_match: false
+                        },
                     }
                 }
 
@@ -85,12 +91,30 @@
                     // assemble documents
                     for (var i = 0; i < body.hits.hits.length; i++) {
                         var hit = body.hits.hits[i];
+
+                        console.log(hit);
+
+                        // default abstract
+                        var abstract = truncate(hit._source.page.abstract, 300);
+                        // if we have a highlight, use that
+                        if (hit.highlight.hasOwnProperty("page.abstract")) {
+                            abstract = truncate(hit.highlight["page.abstract"], 300);
+                        }
+
+                        // default title
+                        var title = truncate(hit._source.info.title, 300);
+                        // if we have a highlight, use that
+                        if (hit.highlight.hasOwnProperty("info.title")) {
+                            title = truncate(hit.highlight["info.title"], 300);
+                        }
+
                         var entry = {
-                            'title' : hit._source.info.title,
+                            title: title,
                             'url' : hit._source.page.url,
-                            'abstract': truncate(hit._source.page.abstract, 300),
+                            abstract: abstract,
                             'year': hit._source.info.year,
                         }
+
                         results.push(entry);
                     }
                         
@@ -123,7 +147,7 @@
   <div class="container">
         <div class="row">
             <div class="ten columns">
-                <h1>copydocs</h1>
+                <h1>CopyDocs</h1>
                 <p>Search through copyright relevant documents quickly.</p>
                 <!-- input -->
                 <input id="q" class="u-full-width" type="text" name="search">
@@ -137,9 +161,9 @@
                 <script id="template" type="x-tmpl-mustache">
                     {{#results}}
                         <li>
-                            <b>{{ title }}</b> &mdash; {{ year }}<br>
+                            <b>{{{ title }}}</b> &mdash; {{ year }}<br>
                             <a href="{{ url }}">{{ url }}</a><br>
-                            {{ abstract }}
+                            {{{ abstract }}}
 
                         </li>
                     {{/results}}
