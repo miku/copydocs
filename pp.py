@@ -193,12 +193,14 @@ def htmltodict(soup):
             # top box
             document.update({'info': dd})
 
-    content = {'page': {
-        'abstract': abstract(soup),
-        'results': main_results_of_study(soup),
-        'implications': policy_implications_as_stated_by_author(soup),
-        'linked_pdfs': linked_pdfs(soup),
-    }}
+    content = {
+        'page': {
+            'abstract': abstract(soup),
+            'results': main_results_of_study(soup),
+            'implications': policy_implications_as_stated_by_author(soup),
+            'linked_pdfs': linked_pdfs(soup),
+        }
+    }
 
     document.update(content)
 

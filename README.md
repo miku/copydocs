@@ -27,3 +27,21 @@ Access API.
 Oh my. http://stackoverflow.com/a/1625291/89391
 
 > I don't think it is possible using the API to get just the text.
+
+----
+
+Done
+----
+
+Basic data from wiki. Links to external PDFs.
+
+TODO
+----
+
+Formalize related pages in wiki.
+
+API
+---
+
+* http://copyrightcentral.arts.gla.ac.uk/wikiData/data
+
