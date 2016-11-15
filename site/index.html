@@ -2,16 +2,45 @@
 <html>
 <head>
     <title>Hi</title>
-    <script
-              src="https://code.jquery.com/jquery-3.1.1.min.js"
-              integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-              crossorigin="anonymous"></script>
+
+    <!-- Basic Page Needs
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta charset="utf-8">
+    <title>copydocs</title>
+    <meta name="description" content="copydocs">
+    <meta name="author" content="copydocs">
+
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/app.css">
+
+    <!-- Favicon
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/mustache.min.js" ></script>
+    <script src="js/sugar.min.js"></script>
+    <script src="js/elasticsearch.jquery.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
             // console.log( "ready!" );
 
+            // main entry point
             $("#q").focus();
+
+            // update on search
             $("#q").keyup(function(e) {
 
                 // if (e.KeyCode == 13) {
@@ -21,35 +50,96 @@
                 var queryString = $("#q").val();
                 // console.log(queryString);
 
-                var encoded = encodeURIComponent(queryString);
-                var baseQ = "http://localhost:9200/sample/_search?q=";
-
-                $.ajax({
-                  type: "POST",
-                  url: baseQ.concat(encoded),
-                  data: {},
-                  success: function(data) {
-                    $("#r").empty();
-                    for (var i = 0; i < data.hits.hits.length; i++) {
-                        var hit = data.hits.hits[i];
-                        // console.log(hit._source.info.title);
-                        $("#r").append("<li>" + hit._source.info.title + "</li>");
-                    }
-                  },
-                  dataType: "json"
+                var client = new $.es.Client({
+                  hosts: 'localhost:9200'
                 });
+
+                client.search({
+                  q: queryString
+                }).then(function (body) {
+                  // var hits = body.hits.hits;
+                  
+                  var template = $('#template').html();
+                  var rendered = Mustache.render(template, {results: body.hits.hits});
+                  $('#r').html(rendered);
+
+                }, function (error) {
+                  console.trace(error.message);
+                });
+
+                // $.ajax({
+                //   type: "GET",
+                //   url: base, // baseQ.concat(encoded),
+                //   crossDomain: true,  
+                //   contentType: 'application/json',
+                //   // async: false,                  
+                //   data: {
+                //     "query": {
+                //         "query_string": {
+                //             "query": queryString
+                //         }
+                //     }
+                //   },
+                //   success: function(data) {
+                //     var template = $('#template').html();
+                //     var rendered = Mustache.render(template, {results: data.hits.hits});
+                //     $('#r').html(rendered);
+
+                //     // for (var i = 0; i < data.hits.hits.length; i++) {
+                //     //     var hit = data.hits.hits[i];
+                //         // console.log(hit._source.info.title);
+
+                //         // var template = '<li><%this.info.title%><br><%this.page.abstract%></li>';
+                //         // console.log(hit._source);
+                //         // var entry = TemplateEngine(template, hit._source);
+                //         // var entry = $("<li>" + hit._source.info.title + "<br>" +  hit._source.page.abstract + "</li>");
+                //         // $("#r").append(entry);
+
+
+                //     // }
+                //   },
+                //   dataType: "json"
+                // });
             });
         });
 
     </script>
 </head>
-<body>
-    <p>Copydocs</p>
 
-    <!-- input -->
-    <input id="q" type="text" name="search">
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+        <div class="row">
+            <div class="ten columns">
+                <h1>copydocs</h1>
+                <p>Search through copyright relevant documents quickly.</p>
+                <!-- input -->
+                <input id="q" class="u-full-width" type="text" name="search">
+
+                <!-- results -->
+                <ul id="r">
+                </ul>
+
+                <script id="template" type="x-tmpl-mustache">
+                    {{#results}}
+                        <li>
+                            <b>{{ _source.info.title }}</b> &mdash; {{ _source.info.year }}<br>
+                            <a href="{{ _source.page.url }}">{{ _source.page.url }}</a><br>
+                            {{ _source.page.abstract }}
+                        </li>
+                    {{/results}}
+                </script>
+                
+            </div>
+        </div>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     
-    <!-- results -->
-    <ul id="r"></ul>
+
+
 </body>
 </html>
