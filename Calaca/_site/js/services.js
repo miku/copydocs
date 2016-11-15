@@ -33,7 +33,7 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, el
                     "from": offset,
                     "query": {
                         "query_string": {
-                            "query": query
+                            "query": query,
                         }
                     }
                 }

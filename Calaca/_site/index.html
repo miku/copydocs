@@ -14,7 +14,7 @@
 
 <!-- Title and search box -->
 <header class='jumbotron'>
-  <h1 class='title'>Calaca</h1>
+  <h1 class='title'>CopyDocs</h1>
   <div class='search-box-container'>
     <input type='text' class='search-box' placeholder='Search' autofocus ng-model='query' ng-change='delayedSearch(0)'>
   </div>
@@ -30,9 +30,13 @@
     <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
     <article class='result' ng-repeat='result in results track by $id(result)'>
       <div>
-        <h1 style="color:blue">{{ result.info.title[0] }}</h1>
+        <p style="font-size: 2em;">{{ result.info.title[0] }}</p>
+        <br>
+        <p style="color: gray;">{{ result.info.year[0] }} &mdash; {{ result.info.citation[0] }}</p>
         <br>
         <p>{{ result.page.abstract }}</p>
+        <br>
+        <p><a href="{{ result.page.linked_pdfs[0] }}">{{ result.page.linked_pdfs[0] }}</p>
       </div>
     </article>
   </section>
