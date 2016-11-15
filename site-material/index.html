@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#2196F3">
+    <title>CopyDocs</title>
+
+    <!-- CSS  -->
+    <link href="min/plugin-min.css" type="text/css" rel="stylesheet">
+    <link href="min/custom-min.css" type="text/css" rel="stylesheet">
+
+    <!-- favicons -->
+    <link rel="apple-touch-icon" sizes="76x76" href="img/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="img/favicons//favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="img/favicons//favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="img/favicons//manifest.json">
+    <link rel="mask-icon" href="img/favicons//safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- ===========================
+    FONTS & ICONS
+    =========================== -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Kristi|Alegreya+Sans:300' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- additional -->
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/mustache.min.js" ></script>
+    <script src="js/sugar.min.js"></script>
+    <script src="js/elasticsearch.jquery.min.js"></script>
+
+
+    <!-- instant search -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // console.log( "ready!" );
+
+            function truncate(string, length){
+               if (string.length > length)
+                  return string.substring(0, length) + '...';
+               else
+                  return string;
+            };
+
+            // main entry point
+            $("#q").focus();
+
+            // update on search
+            $("#q").keyup(function(e) {
+
+                // if (e.KeyCode == 13) {
+                //     console.log("ENTER");
+                // }
+
+                var queryString = $("#q").val();
+                // console.log(queryString);
+
+                var client = new $.es.Client({
+                  hosts: 'localhost:9200'
+                });
+
+                client.search({
+                  q: queryString,
+                  size: 100,
+                }).then(function (body) {
+
+                var results = Array();
+
+                for (var i = 0; i < body.hits.hits.length; i++) {
+                    var entry = {
+                        'title' : body.hits.hits[i]._source.info.title,
+                        'url' : body.hits.hits[i]._source.page.url,
+                        'abstract': truncate(body.hits.hits[i]._source.page.abstract, 300),
+                        'year': body.hits.hits[i]._source.info.year,
+                    }
+                    results.push(entry);
+                }
+                    
+
+                  var template = $('#template').html();
+                  var rendered = Mustache.render(template, {
+                    results: results
+                  });
+                  $('#r').html(rendered);
+
+                  $('#count').html(body.hits.total);
+
+                }, function (error) {
+                  console.trace(error.message);
+                });
+
+            });
+        });
+
+    </script>
+
+
+</head>
+
+<body id="top" class="scrollspy">
+
+    <!-- Pre Loader -->
+    <div id="loader-wrapper">
+        <div id="loader"></div>
+
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+
+    </div>
+
+    <!--Navigation-->
+    <div class="navbar-fixed">
+        <nav id="nav_f" class="default_color" role="navigation">
+            <div class="container">
+                <div class="nav-wrapper">
+                    <a href="#" id="logo-container" class="brand-logo"><img src="img/logo-54x54.png" </a>
+                        <ul class="right hide-on-med-and-down">
+                            <li><a href="#intro">Home</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#why">Why</a></li>
+                            <li><a href="#work">Channel</a></li>
+                            <!--<li><a href="#team">Team</a></li>-->
+                            <li><a href="#contact">Contact</a></li>
+                            <li><a href="#" target="_blank">BETA</a></li>
+                        </ul>
+                        <ul id="nav-mobile" class="side-nav">
+                            <li><a href="#intro">Home</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#why">Why</a></li>
+                            <li><a href="#work">Channel</a></li>
+                            <!--<li><a href="#team">Team</a></li>-->
+                            <li><a href="#contact">Contact</a></li>
+                            <li><a href="#" target="_blank">BETA</a></li>
+                        </ul>
+                        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!--Hero-->
+    <div class="section no-pad-bot" id="index-banner">
+        <div class="container">
+            <h1 class="text_h center header cd-headline letters type">
+                <span>Hey, We are CopyDocs!</span><br>
+                <span>Here you can access </span>
+                <span class="cd-words-wrapper waiting">
+                <b class="is-visible">document search</b>
+                <b> data visualization</b>
+                <b> text mining</b>
+            </span>
+            </h1>
+        </div>
+    </div>
+
+    <!--Intro and service-->
+    <div id="intro" class="section scrollspy">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3 class="center header text_h2">Copyright is tough. We intend to allow better decision making in the context of copyright.</h3>
+                    <h2 class="center header text_h2"><span class="span_h2"> Search Now ! </span></h2>
+                    <br><br>
+                </div>
+            </div>
+        </div>
+
+
+        <br><br>
+
+
+        <!--search-app-iframe-->
+        <div class="section scrollspy" id="work">
+            <div class="container">
+                <h2 class="center header text_b">CopyDocs Search</h2>
+                <div class="row">
+
+                <form>
+                    <input id="q" type="text" />
+                </form>
+
+                <p><span id="count">0</span> result(s).</p>
+
+                <!-- results -->
+                <ul id="r">
+                </ul>
+
+                <script id="template" type="x-tmpl-mustache">
+                    {{#results}}
+                        <li>
+                            <b>{{ title }}</b> &mdash; {{ year }}<br>
+                            <a href="{{ url }}">{{ url }}</a><br>
+                            {{ abstract }}
+
+                        </li>
+                    {{/results}}
+                </script>
+                
+
+                    <!-- <iframe src='http://f5394679.ngrok.io/' width='100%' height='450' style='border: 0px; overflow: hidden; max-width: 1050px; width: 1px; min-width: 100%;' scrolling='yes' frameborder="0" allowfullscreen></iframe> -->
+
+                </div>
+            </div>
+        </div>
+
+
+        <br><br>
+
+
+        <!--About-->
+        <div id="about" class="section scrollspy">
+            <div class="container">
+                <div class="row">
+                    <div class="col s12">
+                        <h2 class="center header text_h2"><span class="span_h2"> What we do </span></h2>
+                        <h3 class="center header text_h2">CopyDocs helps you searching through large dataset THE info on topics that matter to you. You'll then have access to content and visualization.</h3>
+                        <br><br>
+                    </div>
+                </div>
+            </div>
+
+            <!--Why-->
+            <div id="why" class="section scrollspy">
+                <div class="container">
+                    <div class="row">
+                        <div class="col s12">
+                            <h2 class="center header text_h2"><span class="span_h2"> Why a Search Engine </span></h2>
+
+                            <div class="col s12 m4 l4">
+                                <div class="center promo promo-example">
+                                    <i class="material-icons">youtube_searched_for</i>
+                                    <h5 class="promo-caption">Quick, All-device Mobile Search</h5>
+                                    <p class="light center">Google made it global, we are making it evenly local and specific. </p>
+                                </div>
+                            </div>
+                            <div class="col s12 m4 l4">
+                                <div class="center promo promo-example">
+                                    <i class="material-icons">assessment</i>
+                                    <h5 class="promo-caption">Actionable insights</h5>
+                                    <p class="light center"> distributed, RESTful search and analytics engine</p>
+                                </div>
+                            </div>
+                            <div class="col s12 m4 l4">
+                                <div class="center promo promo-example">
+                                    <!--<i class="mdi-hardware-desktop-windows"></i>-->
+                                    <i class="material-icons"><i class="material-icons">touch_app</i></i>
+                                    <h5 class="promo-caption">Straight to the point</h5>
+                                    <p class="light center"> Seamlessly access relevant content at your fingertips. </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <br><br>
+                <br><br>
+
+
+                <!--search-app-iframe-->
+                <div class="section scrollspy" id="team">
+                    <div class="container">
+                        <h2 class="center header text_b">Data Visualisation</h2>
+                        <div class="row">
+                            <iframe src='' width='100%' height='450' style='border: 0px; overflow: hidden; max-width: 1050px; width: 1px; min-width: 100%;' scrolling='yes' frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
+
+                <br><br>
+
+
+                <!--Footer-->
+                <!--<footer id="contact" class="page-footer default_color scrollspy">-->
+                <footer id="contact" class="page-footer light-blue lighten-2" style="margin-top: 0px;">
+                    <div class="container">
+
+                        <div class="row">
+                            <!--<div class="col l6 s12">
+                <form class="col s12" action="contact.php" method="post">
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <i class="mdi-action-account-circle prefix white-text"></i>
+                            <input id="icon_prefix" name="name" type="text" class="validate white-text">
+                            <label for="icon_prefix" class="white-text">First Name</label>
+                        </div>
+                        <div class="input-field col s6">
+                            <i class="mdi-communication-email prefix white-text"></i>
+                            <input id="icon_email" name="email" type="email" class="validate white-text">
+                            <label for="icon_email" class="white-text">Email-id</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <i class="mdi-editor-mode-edit prefix white-text"></i>
+                            <textarea id="icon_prefix2" name="message" class="materialize-textarea white-text"></textarea>
+                            <label for="icon_prefix2" class="white-text">Message</label>
+                        </div>
+                        <div class="col offset-s7 s5">
+                            <button class="btn waves-effect waves-light red darken-1" type="submit">Submit
+                                <i class="mdi-content-send right white-text"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>-->
+
+                            <div class="col l6 s12">
+                                <h5 class="white-text">About Us</h5>
+                                <p class="grey-text text-lighten-4">We are a small team of developer and marketer who want to improve the way organizations and businesses communicate with their users, simple and personal.</p>
+                                <h6 class="light white-text half-line">By creating your account and using CopyDocs, you are agreeing to our <a href="/termsofservice-lb.html" target="_blank" style="font-weight: 700; text-decoration: underline;">Terms of Service</a> and <a href="/#"
+                                        target="_blank" style="font-weight: 700; text-decoration: underline;">Privacy Policy</a>. If you do not agree, you cannot use our services.</h6>
+                            </div>
+
+
+                            <div class="col l3 s12">
+                                <h5 class="white-text">By <a class="white-text" href="http://copydocs.co">copydocs.com</a></h5>
+                                <ul>
+                                    <li>
+                                        <a class="white-text" href="http://m.me/#">
+                                            <i class="material-icons">message</i> fb message us</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col l3 s12">
+                                <h5 class="white-text">Socials</h5>
+                                <ul>
+                                    <li>
+                                        <a class="white-text" href="https://www.twitter.com/#">
+                                            <i class="small fa fa-twitter-square white-text"></i> twitter
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="white-text" href="https://www.facebook.com/#">
+                                            <i class="small fa fa-facebook-square white-text"></i> facebook
+                                        </a>
+                                    </li>
+                                    <li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+
+                    <footer class="page-footer light-blue lighten-2" style="margin-top: 0px;">
+
+
+                        <div class="footer-copyright">
+                            <div class="container">
+                                Made with <i class="material-icons" style="color:pink">favorite_border</i>by <a class="white-text text-lighten-3" href="#">copydocs-team</a>
+                            </div>
+                        </div>
+                    </footer>
+
+
+                    <!--  Scripts-->
+                    <script src="min/plugin-min.js"></script>
+                    <script src="min/custom-min.js"></script>
+
+</body>
+
+</html>
