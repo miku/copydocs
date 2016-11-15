@@ -138,5 +138,31 @@ class ImagesFromPDF(Task):
     def output(self):
         return luigi.LocalTarget(path=self.path())
 
+class TextFromPDF(Task):
+    """
+    Extract text from PDF, place in a separate files.
+    """
+
+    def requires(self):
+        return DownloadLinkedPDF()
+
+    def run(self):
+        files = []
+        with self.input().open() as handle:
+            for line in map(str.strip, handle):
+                target = line.replace('.pdf', '.txt')
+                try:
+                    shellout("pdftotext {pdf} {txt}", pdf=line, txt=target)
+                    files.append(target)
+                except RuntimeError as err:
+                    print(err, file=sys.stderr)
+
+        with self.output().open('w') as output:
+            for path in files:
+                output.write(path + '\n')
+                
+    def output(self):
+        return luigi.LocalTarget(path=self.path())
+
 if __name__ == '__main__':
     luigi.run()
