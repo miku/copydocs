@@ -19,7 +19,7 @@
  */
 
 var CALACA_CONFIGS = {
-    url: "http://e4ff4140.ngrok.io",
+    url: "http://localhost:9200",
 	index_name: "sample",
 	type: "default",
 	size: 10,
