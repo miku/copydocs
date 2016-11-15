@@ -55,6 +55,33 @@ def infobox(soup):
     tables = soup.find_all('table', {'class': 'infobox'})
     return tables
 
+def breakup(s):
+    """
+    Breakup a string like:
+
+        Key Related Studies:
+
+            Moores and Chang (2006)
+            Sims et al. (1996)
+            Simpson et al. (1994)
+            Liang and Yan (2005)
+            Rahim et al. (2001)
+
+    into
+
+        {'Key Related Studies': ['Moores and Chang (2006)', ...]}
+
+    """
+    parts = s.split(':', 1)
+    if len(parts) == 0:
+        return ''
+    if len(parts) == 1:
+        return parts
+    return {
+        parts[0]: [v.strip() for v in parts[1].strip().split('\n')]
+    }
+
+
 if __name__ == '__main__':
     path = 'mirror/www.copyrightevidence.org/evidence-wiki/index.php/Acilar_(2010).html'
 
@@ -79,7 +106,12 @@ if __name__ == '__main__':
     #  The main purpose of the present ...
     # </p>
 
-    print(infobox(soup))
+    for x in infobox(soup):
+        for row in x.find_all('tr'):
+            print(breakup(row.get_text()))
+            print('----')
+        # print(x.prettify())
+        # print('----')
 
     # Lovely.
     # print(json.dumps({
