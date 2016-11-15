@@ -200,6 +200,7 @@
             }
           },
           "text": {
+            "term_vector" : "with_positions_offsets",
             "type": "text",
             "store": true,
             "fields": {
