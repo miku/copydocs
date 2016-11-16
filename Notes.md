@@ -11,3 +11,9 @@ Demo Martin
 Searches:
 
 * streaming
+* "European consumers"
+* "effective copyright protection"
+
+Powerful query syntax:
+
+* streaming AND NOT download*
