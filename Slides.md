@@ -3,7 +3,7 @@ Copydocs
 
 **Instant search** through documents relevant to copyright
 
-![](site/images/length_copyright_01.png)
+![](site/images/length_copyright_02.png)
 
 ----
 
@@ -38,6 +38,8 @@ Technology
 
 * Python, JavaScript, elasticsearch, Illustrator, R
 
+![](site/images/screenshot.jpg)
+
 ----
 
 Outlook
@@ -47,6 +49,9 @@ Outlook
 * add more data sources, recommended readings
 * apply more text analysis
 
+----
+
 Thanks #Euh2016
 ===============
 
+![](site/images/when_copyright_02.png)
