@@ -38,3 +38,7 @@ hr {
 .industries {
     color: #339922;
 }
+
+img {
+    max-width: 100%;
+}
