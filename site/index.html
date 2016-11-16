@@ -33,10 +33,23 @@
     <script src="js/sugar.min.js"></script>
     <script src="js/jquery.debounce.js"></script>
     <script src="js/elasticsearch.jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {
             // console.log( "ready!" );
+            $("#q").val("");
+
+
+            $("#poster").html('<img src="images/length_copyright_0' + getRandomInt(1, 4) + '.png" />');
+
+            // Returns a random integer between min (included) and max (excluded)
+            // Using Math.round() will give you a non-uniform distribution!
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
 
             function truncate(string, length){
                if (string.length > length)
@@ -51,12 +64,18 @@
             // update on search
             $("#q").keyup($.debounce(function(e) {
 
+                $("#poster").html("");
                 // if (e.KeyCode == 13) {
                 //     console.log("ENTER");
                 // }
 
                 var queryString = $("#q").val();
                 // console.log(queryString);
+
+                // show poster, if no search
+                if (queryString == "") {
+                    $("#poster").html('<img src="images/length_copyright_0' + getRandomInt(1, 4) + '.png" />');
+                }
 
                 var client = new $.es.Client({
                   hosts: 'http://localhost:9200'
@@ -88,11 +107,16 @@
                             year: {
                                 terms: {
                                     field: "info.year",
+                                    order : {
+                                        "_term" : "desc",
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                 $('#count').html("Searching ...");
 
                 client.search(searchParams).then(function (body) {
                     // success
@@ -100,23 +124,46 @@
 
                     console.log(body);
 
-
                     // ====================================
 
                     // set filters from aggs
                     // collect year filters here
                     var fvals = Array();
+                    var yearcounts = Array();
 
                     var buckets = body.aggregations.year.buckets;
                     for (var i = 0; i < buckets.length; i++) {
                         var b = buckets[i];
+                        if (b.key == "working" || b.key == "paper") {
+                            continue;
+                        }
                         fvals.push({
                             "key": b.key,
                             "value": b.doc_count,
-                        })
+                        });
+                        yearcounts.push(b.doc_count);
                     }
 
                     console.log(fvals);
+
+                    $('.chart').html("");
+
+                    // var data = [4, 8, 15, 16, 23, 42];
+                    var data = yearcounts;
+
+
+                    var x = d3.scale.linear()
+                        .domain([0, d3.max(data)])
+                        .range([0, 420]);
+
+                    d3.select(".chart")
+                      .selectAll("div")
+                        .data(fvals)
+                      .enter().append("div")
+                        .style("width", function(d) { return x(d.value) + "px"; })
+                        .text(function(d) { return d.key; });
+
+                    // ---- END Charts
 
                     // mustachio
                     var template = $('#filtertemplate').html();
@@ -181,7 +228,7 @@
                     $('#r').html(rendered);
 
                     // update count
-                    $('#count').html(body.hits.total);
+                    $('#count').html(body.hits.total + " docs match.");
 
                 }, function (error) {
                     // fail
@@ -204,15 +251,23 @@
                 <p>Search through copyright relevant documents quickly.</p>
                 <!-- input -->
                 <input id="q" class="u-full-width" type="text" name="search">
-
-                <p><span id="count">0</span> result(s).</p>
             </div>
         </div>
 
         <div class="row">
-                <div class="two columns">
+            <div class="two columns" id="poster"></div>
+        </div>
+
+        <div class="row">
+                
+                
+                <div class="twelve columns">
                 <!-- filters -->
-                <ul id="f"></ul>
+                <!-- <ul id="f"></ul> -->
+
+                <div class="chart"></div>
+                <br>
+
 
                 <script id="filtertemplate" type="x-tmpl-mustache">
                     {{#fvals}}
@@ -224,15 +279,20 @@
 
                 </div>
 
-                <div class="ten columns">
+        </div>
 
+        <div>
+
+                <div class="twelve columns">
+
+                <p><span id="count"></span></p>
                 <!-- results -->
                 <ul id="r"></ul>
 
                 <script id="template" type="x-tmpl-mustache">
                     {{#results}}
                         <li class="item">
-                            <b>{{{ title }}}</b> &mdash; {{ year }}<br>
+                            <b class="title">{{{ title }}}</b> &mdash; {{ year }}<br>
                             <a href="{{ url }}">{{ url }}</a><br>
                             {{{ abstract }}}
                             <br>
