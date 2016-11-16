@@ -75,11 +75,6 @@
                             {"info.year": {"order": "desc"}},
                             "_score"
                         ],
-                        // query: {
-                        //     match: {
-                        //         "info.title": queryString
-                        //     }
-                        // },
                         highlight: {
                             fields: {
                                 '*': {
@@ -110,23 +105,23 @@
 
                     // set filters from aggs
                     // collect year filters here
-                    var filters = Array();
+                    var fvals = Array();
 
                     var buckets = body.aggregations.year.buckets;
                     for (var i = 0; i < buckets.length; i++) {
                         var b = buckets[i];
-                        filters.push({
+                        fvals.push({
                             "key": b.key,
                             "value": b.doc_count,
                         })
                     }
 
-                    console.log(filters);
+                    console.log(fvals);
 
                     // mustachio
                     var template = $('#filtertemplate').html();
                     var rendered = Mustache.render(template, {
-                        filters: filters,
+                        fvals: fvals,
                     });
 
                     // replace #f completely
@@ -217,11 +212,11 @@
                 <ul id="f"></ul>
 
                 <script id="filtertemplate" type="x-tmpl-mustache">
-                    {{#filters}}
+                    {{#fvals}}
                         <li>
-                            {{ key } {{ value }}
+                            {{ key }} -- {{ value }}
                         </li>
-                    {{/filters}}
+                    {{/fvals}}
                 </script>
 
                 <!-- results -->
