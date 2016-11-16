@@ -21,6 +21,9 @@ em {
     color: #707070;
 }
 
+hr {
+  margin: 5px 0px 5px 0px;
+}
 
 
 .chart div {
@@ -32,3 +35,6 @@ em {
   color: white;
 }
 
+.industries {
+    color: #339922;
+}

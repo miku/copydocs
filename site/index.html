@@ -97,7 +97,7 @@
                         highlight: {
                             fields: {
                                 '*': {
-                                    "fragment_size" : 250,
+                                    "fragment_size" : 150,
                                     "number_of_fragments" : 3
                                 }
                             },
@@ -203,12 +203,20 @@
                             fulltext = hit.highlight["page.text"];
                         }
 
+                        // industries
+                        var industries = truncate(hit._source.about.industries.join(", "));
+                        // if we have a highlight, use that
+                        if (hit.highlight.hasOwnProperty("about.industries")) {
+                            industries = hit.highlight["about.industries"];
+                        }
+
                         var entry = {
                             title: title,
                             'url' : hit._source.page.url,
                             abstract: abstract,
                             'year': hit._source.info.year,
                             'fulltext': fulltext,
+                            'industries': hit._source.about.industries.join(", "),
                         }
 
                         if (hit._source.page.linked_pdfs.length > 0) {
@@ -260,7 +268,6 @@
 
         <div class="row">
                 
-                
                 <div class="twelve columns">
                 <!-- filters -->
                 <!-- <ul id="f"></ul> -->
@@ -295,12 +302,20 @@
                             <b class="title">{{{ title }}}</b> &mdash; {{ year }}<br>
                             <a href="{{ url }}">{{ url }}</a><br>
                             {{{ abstract }}}
+                            
+                            <div class="industries">{{{ industries }}}</div>
                             <br>
+                            
                             <hr>
                             <a href="{{ pdf }}">{{ pdf }}</a>
                             <div class="fulltext">
                                 {{{ fulltext }}}
                             </div>
+                            <!-- recommendations from DOAJ -->
+                            <!-- <div class="recommandations">
+                                <b>Recommandations from DOAJ</b>
+                            </div> -->
+
                         </li>
                     {{/results}}
                 </script>
