@@ -40,8 +40,12 @@
             // console.log( "ready!" );
             $("#q").val("");
 
+            var posters = [
+                "images/length_copyright_01.png",
+                "images/when_copyright_02.png",
+            ]
 
-            $("#poster").html('<img src="images/length_copyright_0' + getRandomInt(1, 4) + '.png" />');
+            $("#poster").html('<img src="' +  posters[Math.floor(Math.random() * posters.length)] + '" />');
 
             // Returns a random integer between min (included) and max (excluded)
             // Using Math.round() will give you a non-uniform distribution!
