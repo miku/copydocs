@@ -78,11 +78,11 @@
 
                 // show poster, if no search
                 if (queryString == "") {
-                    $("#poster").html('<img src="images/length_copyright_0' + getRandomInt(1, 4) + '.png" />');
+                    $("#poster").html('<img src="' +  posters[Math.floor(Math.random() * posters.length)] + '" />');
                 }
 
                 var client = new $.es.Client({
-                  hosts: 'http://localhost:9200'
+                  hosts: 'http://localhost:9200',
                 });
 
                 var searchParams = {
@@ -120,7 +120,7 @@
                     }
                 }
 
-                 $('#count').html("Searching ...");
+                $('#count').html("Searching ...");
 
                 client.search(searchParams).then(function (body) {
                     // success
