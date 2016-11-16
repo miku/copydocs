@@ -207,6 +207,10 @@
                             fulltext = hit.highlight["page.text"];
                         }
 
+                        if (fulltext != "") {
+                            fulltext = "<b>From the full text: </b>" + fulltext;
+                        }
+
                         // industries
                         var industries = truncate(hit._source.about.industries.join(", "));
                         // if we have a highlight, use that
