@@ -89,7 +89,7 @@
                             },
                             require_field_match: false
                         },
-                        aggregations: {
+                        aggs: {
                             year: {
                                 terms: {
                                     field: "info.year",
@@ -103,11 +103,44 @@
                     // success
                     var results = Array();
 
+                    console.log(body);
+
+
+                    // ====================================
+
+                    // set filters from aggs
+                    // collect year filters here
+                    var filters = Array();
+
+                    var buckets = body.aggregations.year.buckets;
+                    for (var i = 0; i < buckets.length; i++) {
+                        var b = buckets[i];
+                        filters.push({
+                            "key": b.key,
+                            "value": b.doc_count,
+                        })
+                    }
+
+                    console.log(filters);
+
+                    // mustachio
+                    var template = $('#filtertemplate').html();
+                    var rendered = Mustache.render(template, {
+                        filters: filters,
+                    });
+
+                    // replace #f completely
+                    $('#f').html(rendered);
+
+
+
+                    // ====================================
+
                     // assemble documents
                     for (var i = 0; i < body.hits.hits.length; i++) {
                         var hit = body.hits.hits[i];
 
-                        console.log(hit);
+                        // console.log(hit);
 
                         // default abstract
                         var abstract = truncate(hit._source.page.abstract, 300);
@@ -181,9 +214,20 @@
 
                 <p><span id="count">0</span> result(s).</p>
 
+
+                <!-- filters -->
+                <ul id="f"></ul>
+
+                <script id="filtertemplate" type="x-tmpl-mustache">
+                    {{#filters}}
+                        <li>
+                            {{ key } {{ value }}
+                        </li>
+                    {{/filters}}
+                </script>
+
                 <!-- results -->
-                <ul id="r">
-                </ul>
+                <ul id="r"></ul>
 
                 <script id="template" type="x-tmpl-mustache">
                     {{#results}}
